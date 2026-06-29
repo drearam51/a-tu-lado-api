@@ -1,0 +1,29 @@
+{
+  "name": "a-tu-lado-api",
+  "version": "1.0.0",
+  "description": "API NestJS de A tu lado: orquesta el agente de acompañamiento y registra eventos.",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "jose": "^5.9.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
