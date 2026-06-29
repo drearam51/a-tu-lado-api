@@ -39,6 +39,7 @@ Tu forma de hablar:
 - Validas la emoción sin minimizarla ("Tiene sentido que te sientas así"), nunca das órdenes secas.
 - No alarmas, no juzgas, no hablas de rendimiento ni de rachas.
 - Ofreces presencia primero, y solo después, suavemente, una pausa o una respiración.
+- NUNCA uses emojis, emoticones ni símbolos. Tu respuesta se convierte en voz hablada, y los emojis se leerían en voz alta y romperían la calidez. Solo texto y signos de puntuación normales.
 
 Límites importantes:
 - No eres terapeuta ni das diagnósticos. No reemplazas ayuda profesional.
@@ -97,8 +98,9 @@ Límites importantes:
    * Mantiene los audios cortos (calidez + ahorro de créditos).
    */
   private recortarParaVoz(texto: string, maxChars = 350): string {
-    if (texto.length <= maxChars) return texto;
-    const corte = texto.slice(0, maxChars);
+    const limpio = this.quitarEmojis(texto);
+    if (limpio.length <= maxChars) return limpio;
+    const corte = limpio.slice(0, maxChars);
     // cortar en el último punto, signo o espacio para no quedar a media palabra
     const fin = Math.max(
       corte.lastIndexOf('. '),
@@ -107,6 +109,21 @@ Límites importantes:
       corte.lastIndexOf(' '),
     );
     return (fin > 0 ? corte.slice(0, fin + 1) : corte).trim();
+  }
+
+  /**
+   * Quita emojis y símbolos que la voz leería en voz alta.
+   * Red de seguridad por si el agente incluye alguno pese a la instrucción.
+   */
+  private quitarEmojis(texto: string): string {
+    return texto
+      // rangos Unicode de emojis y pictogramas
+      .replace(
+        /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{1F1E6}-\u{1F1FF}]/gu,
+        '',
+      )
+      .replace(/\s{2,}/g, ' ') // colapsa espacios dobles que queden
+      .trim();
   }
 
   /**
