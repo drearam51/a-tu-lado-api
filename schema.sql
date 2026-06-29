@@ -5,9 +5,12 @@
 -- Pégalo en el SQL Editor de Supabase y corre.
 -- =====================================================================
 
--- TimescaleDB para las lecturas biométricas de alta frecuencia.
--- (En Supabase: Database → Extensions, o esta línea lo activa.)
-create extension if not exists timescaledb;
+-- Nota sobre series temporales:
+-- La arquitectura original proponía TimescaleDB para 'lecturas_biometricas',
+-- pero esa extensión quedó deprecada en Supabase (Postgres 17). Para el MVP
+-- usamos una tabla Postgres normal con índice temporal, que es suficiente.
+-- Si en el futuro el volumen lo exige, se migra a particionamiento nativo
+-- con pg_partman (la ruta oficial de Supabase) sin cambiar el modelo.
 
 -- ---------------------------------------------------------------------
 -- 1. usuarios  (el perfil; la identidad vive en auth.users de Supabase)
@@ -37,24 +40,18 @@ create table if not exists manillas (
 );
 
 -- ---------------------------------------------------------------------
--- 3. lecturas_biometricas  (hypertable TimescaleDB, append-only)
---    PK compuesta (usuario_id, timestamp); sin updated_at.
+-- 3. lecturas_biometricas  (tabla de series temporales, append-only)
+--    Antes era hypertable de TimescaleDB; ahora tabla Postgres normal
+--    con índice por (usuario_id, timestamp) para consultas de ventana.
 -- ---------------------------------------------------------------------
 create table if not exists lecturas_biometricas (
-  id             uuid default gen_random_uuid(),
+  id             uuid primary key default gen_random_uuid(),
   manilla_id     uuid not null references manillas(id) on delete cascade,
   usuario_id     uuid not null references usuarios(id) on delete cascade,
   timestamp      timestamptz not null,
   ritmo_cardiaco int,
   hrv            numeric,
-  actividad      numeric,
-  primary key (usuario_id, timestamp)
-);
-
--- Convertir en hypertable (partición temporal eficiente).
-select create_hypertable(
-  'lecturas_biometricas', 'timestamp',
-  if_not_exists => true, migrate_data => true
+  actividad      numeric
 );
 
 -- ---------------------------------------------------------------------

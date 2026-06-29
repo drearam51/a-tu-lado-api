@@ -94,4 +94,3 @@ src/
     ├── ayuda.service         orquesta evento + BD + agente
     └── ayuda.dto             validación de entrada
 ```
-# a-tu-lado-api
